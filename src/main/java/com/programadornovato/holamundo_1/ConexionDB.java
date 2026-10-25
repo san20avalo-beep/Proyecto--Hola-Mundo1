@@ -1,50 +1,43 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.programadornovato.holamundo_1;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+
 /**
- *
  * @author 50496
  */
+public class ConexionDB {
 
-public class ConexionDB{ 
-    private static final String URL = "jdbc:sqlserver://SANDRIS\\SQLEXPRESS;" 
-            + "databaseName=AvanzadaII;" 
-            +"encrypt=true;" 
-            +"trustServerCertificate=true;";
-    private static final String USER = "sa";
-    private static final String PASSWORD = "SQLSandra";
+    // Intentamos leer la variable de entorno, y si es nula, usamos tu token por defecto
+    private static final String AUTH_TOKEN = System.getenv("TURSO_AUTH_TOKEN") != null 
+            ? System.getenv("TURSO_AUTH_TOKEN") 
+            : "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3OTI5MDQ5OTQsImlkIjoiMDFhMTcxNTctNjkwMS03YmI1LWI4NzUtZGRkNzFhYTA4NWRlIiwia2lkIjoiZzdyQzk3dUp1YTVGV1V1eVhVay0taVZ1TTVFV2V2bl9DNzN3M0pBcnRCUSIsInJpZCI6IjdjY2Q1NGYwLTJmN2ItNDllYi1hZjEyLThmMzMwMWZmNDNkYSJ9.2bm91gHL5qZ2HIiEs8uhaQugWp5C9T_xMiFTWRUOmXzbvFCjBFMqJMkrsRky1p98pkFCf0Y_UDMXSpm3_5WeAg";
+
+    private static final String URL =
+        "jdbc:dbeaver:libsql:https://avanzadaii-san20avalo-beep.aws-us-west-2.turso.io";
     
-    private static Connection conexion = null;
-    private ConexionDB(){}
+    public static Connection obtenerConexion() {
+        try {
+            Class.forName(
+                "com.dbeaver.jdbc.driver.libsql.LibSqlDriver"
+            );
 
-    public static Connection getConexion (){
-        try{
-            if(conexion == null || conexion.isClosed()){
-                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                conexion = DriverManager.getConnection(URL,USER,PASSWORD);
-            System.out.println("Conexion exitosa a Sql");
-            }
-        }catch(ClassNotFoundException e){
-            System.out.println("Error no se encontro el Driver de mssql-jdbc");
-        }catch(SQLException e){
-            System.out.println("Error al conectar con SQL" + e.getMessage());
-            }
-        return conexion;
-    }
+            Connection cn = DriverManager.getConnection(
+                URL, null, AUTH_TOKEN
+            );
 
-    public static void cerrarConexion(){
-        try{
-            if(conexion != null && !conexion.isClosed()){
-                conexion.close();
-                System.out.print("->La conexion con SQL fue Cerrada");
+            System.out.println("Conexion exitosa con Turso.");
+            return cn;
+
+        } catch (ClassNotFoundException e) {
+            System.err.println("No se encontro el driver JDBC.");
+            e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println("Error al conectar con Turso.");
+            e.printStackTrace();
         }
-        }catch(SQLException e){
-            System.err.println("Error al cerrar la conexion" + e.getMessage());
-        }
+
+        return null;
     }
 }
